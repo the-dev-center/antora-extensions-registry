@@ -1,0 +1,12 @@
+= Antora Extensions Registry
+
+Welcome to the Antora Extensions Registry documentation!
+
+This site allows users to browse and developers to submit Antora extensions and extension bundles.
+
+== Features
+
+* Browse Extensions
+* Deep Dependency Analysis
+* Easy Installation Instructions
+* Multi-provider Authentication
