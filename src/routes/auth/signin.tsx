@@ -1,4 +1,4 @@
-import { Component, For } from "solid-js";
+import { Component, For, Show } from "solid-js";
 import { signIn } from "start-authjs/client";
 
 export default function SignIn() {
@@ -14,7 +14,7 @@ export default function SignIn() {
         <div class="min-h-screen flex items-center justify-center bg-[#050505] p-6 selection:bg-purple-500/30">
             <div class="absolute inset-0 overflow-hidden pointer-events-none">
                 <div class="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-purple-600/10 blur-[120px] animate-pulse"></div>
-                <div class="absolute -bottom-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-indigo-600/10 blur-[120px] animate-pulse" style="animation-delay: 2s"></div>
+                <div class="absolute -bottom-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-indigo-600/10 blur-[120px] animate-pulse" style={{ "animation-delay": "2s" }}></div>
             </div>
 
             <div class="relative w-full max-w-sm space-y-10 animate-in">

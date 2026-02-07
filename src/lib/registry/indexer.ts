@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { extensions, dependencies, bundleMembers } from "~/server/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
 interface PackageJson {
@@ -80,7 +80,7 @@ export async function indexExtension(
             sourceId: extensionId,
             targetName: name,
             versionRange: range,
-            isNative: false, // We filtered them out, but could flag them instead
+            isNative: false,
         }));
 
     if (depRecords.length > 0) {

@@ -3,7 +3,7 @@ import { Component, createSignal, For } from "solid-js";
 export const InstallMethods: Component<{ name: string; version: string }> = (props) => {
     const [activeTab, setActiveTab] = createSignal("pnpm");
 
-    const methods = [
+    const methods = () => [
         { id: "npm", label: "npm", cmd: `npm install ${props.name}` },
         { id: "pnpm", label: "pnpm", cmd: `pnpm add ${props.name}` },
         { id: "yarn", label: "yarn", cmd: `yarn add ${props.name}` },
@@ -13,7 +13,7 @@ export const InstallMethods: Component<{ name: string; version: string }> = (pro
     return (
         <div class="space-y-4">
             <div class="flex gap-2 p-1 rounded-lg bg-white/5">
-                <For each={methods}>
+                <For each={methods()}>
                     {(m) => (
                         <button
                             onClick={() => setActiveTab(m.id)}
@@ -28,15 +28,15 @@ export const InstallMethods: Component<{ name: string; version: string }> = (pro
 
             <div class="relative group">
                 <pre class="p-4 rounded-xl glass text-[13px] font-mono overflow-x-auto text-purple-300 border border-white/5">
-                    <code>{methods.find(m => m.id === activeTab())?.cmd}</code>
+                    <code>{methods().find(m => m.id === activeTab())?.cmd}</code>
                 </pre>
                 <button
                     title="Copy to clipboard"
                     class="absolute top-3 right-3 p-2 rounded-md hover:bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-white"
-                    onClick={() => navigator.clipboard.writeText(methods.find(m => m.id === activeTab())?.cmd || '')}
+                    onClick={() => navigator.clipboard.writeText(methods().find(m => m.id === activeTab())?.cmd || '')}
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
                     </svg>
                 </button>
             </div>
