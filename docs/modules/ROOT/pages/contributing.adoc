@@ -1,0 +1,68 @@
+= Contributing your Extension
+
+To list your extension in the Antora Extensions Registry, you should provide metadata files in your repository. This allows the registry to display rich information about your extension, including descriptions and screenshots.
+
+== Required Files
+
+1. `package.json`: Standard npm package file. The registry uses the `name`, `version`, and `description` fields.
+2. `antora-registry.md`: A special Markdown file for registry-specific metadata.
+
+== The `antora-registry.md` File
+
+This file allows you to customize how your extension appears in the registry. It should be placed in the root of your repository.
+
+=== Frontmatter Fields
+
+The registry parses the YAML frontmatter for specific fields:
+
+[cols="1,3"]
+|===
+| Field | Description
+
+| `name`
+| (Optional) Display name if different from `package.json`.
+
+| `description`
+| A short, catchy summary for the extension card (limited to ~150 characters).
+
+| `screenshots`
+| A list of objects containing `url` and `caption`. These will be displayed in the screenshot carousel.
+|===
+
+=== Content
+
+Everything below the frontmatter is used as the detailed description in the extension's "Insights" panel. Standard Markdown is supported.
+
+=== Template
+
+You can use the following template as a starting point. [link:https://github.com/the-dev-center/antora-extensions-registry/blob/main/templates/antora-registry.md[Download Template]]
+
+[source,markdown]
+----
+---
+name: "My Awesome Extension"
+description: "Briefly explain what your extension does and why it's great."
+screenshots:
+  - url: "https://raw.githubusercontent.com/user/repo/main/docs/assets/screenshot1.png"
+    caption: "Desktop View - Features highlighted"
+  - url: "https://raw.githubusercontent.com/user/repo/main/docs/assets/screenshot2.png"
+    caption: "Responsive Mobile Layout"
+---
+
+# Overview
+
+Add a detailed description of your extension here. You can use **Markdown** to format your content. 
+This content will be displayed in the "Insights" panel of the Antora Extensions Registry.
+
+## Key Features
+- Feature 1
+- Feature 2
+- Feature 3
+----
+
+== Image Guidelines
+
+* **External Hosting**: We do *not* host your images. Please use stable URLs (e.g., GitHub `raw` links).
+* **Aspect Ratio**: We recommend a 16:9 aspect ratio for best display results.
+* **Format**: Standard web formats like PNG, JPG, or WebP are supported.
+* **Count**: You can provide up to 5 screenshots.

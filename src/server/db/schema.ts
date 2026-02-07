@@ -68,3 +68,11 @@ export const dependencies = sqliteTable("dependency", {
     versionRange: text("versionRange"),
     isNative: integer("isNative", { mode: "boolean" }).default(false).notNull(),
 });
+
+export const screenshots = sqliteTable("screenshot", {
+    id: text("id").primaryKey(),
+    extensionId: text("extensionId").notNull().references(() => extensions.id, { onDelete: "cascade" }),
+    url: text("url").notNull(),
+    caption: text("caption"),
+    order: integer("order").default(0).notNull(),
+});

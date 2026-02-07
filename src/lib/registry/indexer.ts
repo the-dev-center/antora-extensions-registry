@@ -1,5 +1,5 @@
 import { db } from "~/server/db";
-import { extensions, dependencies, bundleMembers } from "~/server/db/schema";
+import { extensions, dependencies, bundleMembers, screenshots } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 
@@ -14,6 +14,16 @@ interface PackageJson {
     antora?: {
         extensions?: string[];
     };
+}
+
+export interface ScreenshotMetadata {
+    url: string;
+    caption?: string;
+}
+
+export interface EnhancedMetadata {
+    readme?: string;
+    screenshots?: ScreenshotMetadata[];
 }
 
 const NATIVE_ANTORA_PACKAGES = [
@@ -35,7 +45,8 @@ export async function indexExtension(
     pkg: PackageJson,
     type: "extension" | "bundle" = "extension",
     authorId?: string,
-    repositoryUrl?: string
+    repositoryUrl?: string,
+    enhanced?: EnhancedMetadata
 ) {
     const extensionId = uuidv4();
 
@@ -49,6 +60,7 @@ export async function indexExtension(
         authorId,
         repositoryUrl,
         npmName: pkg.name,
+        readme: enhanced?.readme,
         createdAt: new Date(),
         updatedAt: new Date(),
     }).onConflictDoUpdate({
@@ -56,14 +68,16 @@ export async function indexExtension(
         set: {
             version: pkg.version,
             description: pkg.description,
+            readme: enhanced?.readme,
             updatedAt: new Date(),
         },
     });
 
-    // 2. Clear old dependencies
+    // 2. Clear old data
     const [existing] = await db.select().from(extensions).where(eq(extensions.name, pkg.name));
     if (existing) {
         await db.delete(dependencies).where(eq(dependencies.sourceId, existing.id));
+        await db.delete(screenshots).where(eq(screenshots.extensionId, existing.id));
     }
 
     // 3. Analyze dependencies
@@ -85,6 +99,18 @@ export async function indexExtension(
 
     if (depRecords.length > 0) {
         await db.insert(dependencies).values(depRecords);
+    }
+
+    // 4. Handle Screenshots
+    if (enhanced?.screenshots && enhanced.screenshots.length > 0) {
+        const screenshotRecords = enhanced.screenshots.map((s, index) => ({
+            id: uuidv4(),
+            extensionId: extensionId,
+            url: s.url,
+            caption: s.caption,
+            order: index,
+        }));
+        await db.insert(screenshots).values(screenshotRecords);
     }
 
     return extensionId;
