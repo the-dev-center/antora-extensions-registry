@@ -48,11 +48,13 @@ export async function indexExtension(
     repositoryUrl?: string,
     enhanced?: EnhancedMetadata
 ) {
-    const extensionId = uuidv4();
+    // 1. Check for existing record to maintain ID stability
+    const [existing] = await db.select().from(extensions).where(eq(extensions.name, pkg.name));
+    const targetId = existing?.id || uuidv4();
 
-    // 1. Insert/Update Extension
+    // 2. Insert or Update Extension
     await db.insert(extensions).values({
-        id: extensionId,
+        id: targetId,
         name: pkg.name,
         version: pkg.version,
         description: pkg.description,
@@ -69,18 +71,18 @@ export async function indexExtension(
             version: pkg.version,
             description: pkg.description,
             readme: enhanced?.readme,
+            repositoryUrl: repositoryUrl ? repositoryUrl : undefined,
             updatedAt: new Date(),
         },
     });
 
-    // 2. Clear old data
-    const [existing] = await db.select().from(extensions).where(eq(extensions.name, pkg.name));
+    // 3. Clear old sub-data (dependencies and screenshots)
     if (existing) {
         await db.delete(dependencies).where(eq(dependencies.sourceId, existing.id));
         await db.delete(screenshots).where(eq(screenshots.extensionId, existing.id));
     }
 
-    // 3. Analyze dependencies
+    // 4. Analyze and insert dependencies
     const allDeps = {
         ...pkg.dependencies,
         ...pkg.devDependencies,
@@ -91,7 +93,7 @@ export async function indexExtension(
         .filter(([name]) => !NATIVE_ANTORA_PACKAGES.includes(name))
         .map(([name, range]) => ({
             id: uuidv4(),
-            sourceId: extensionId,
+            sourceId: targetId,
             targetName: name,
             versionRange: range,
             isNative: false,
@@ -101,11 +103,11 @@ export async function indexExtension(
         await db.insert(dependencies).values(depRecords);
     }
 
-    // 4. Handle Screenshots
+    // 5. Insert new screenshots
     if (enhanced?.screenshots && enhanced.screenshots.length > 0) {
         const screenshotRecords = enhanced.screenshots.map((s, index) => ({
             id: uuidv4(),
-            extensionId: extensionId,
+            extensionId: targetId,
             url: s.url,
             caption: s.caption,
             order: index,
@@ -113,7 +115,7 @@ export async function indexExtension(
         await db.insert(screenshots).values(screenshotRecords);
     }
 
-    return extensionId;
+    return targetId;
 }
 
 export async function indexBundle(pkg: PackageJson, memberPkgs: PackageJson[], authorId?: string) {
