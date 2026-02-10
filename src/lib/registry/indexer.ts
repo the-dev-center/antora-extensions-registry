@@ -41,6 +41,8 @@ const NATIVE_ANTORA_PACKAGES = [
     "@antora/ui-loader",
 ];
 
+import { parseExtensionDoc } from "./parser";
+
 export async function indexExtension(
     pkg: PackageJson,
     type: "extension" | "bundle" = "extension",
@@ -48,6 +50,17 @@ export async function indexExtension(
     repositoryUrl?: string,
     enhanced?: EnhancedMetadata
 ) {
+    let readmeHtml = enhanced?.readme;
+    
+    // If we have an adoc file, it should be parsed
+    // This is where we dogfood the AsciiDoc parser
+    if (enhanced?.readme && (enhanced.readme.includes('\n= ') || enhanced.readme.startsWith('= '))) {
+        const parsed = parseExtensionDoc(enhanced.readme);
+        readmeHtml = parsed.contentHtml;
+        // Optionally update other metadata from frontmatter if not provided
+        if (!pkg.description) pkg.description = parsed.description;
+    }
+
     // 1. Check for existing record to maintain ID stability
     const [existing] = await db.select().from(extensions).where(eq(extensions.name, pkg.name));
     const targetId = existing?.id || uuidv4();
@@ -62,7 +75,7 @@ export async function indexExtension(
         authorId,
         repositoryUrl,
         npmName: pkg.name,
-        readme: enhanced?.readme,
+        readme: readmeHtml,
         createdAt: new Date(),
         updatedAt: new Date(),
     }).onConflictDoUpdate({
@@ -70,7 +83,7 @@ export async function indexExtension(
         set: {
             version: pkg.version,
             description: pkg.description,
-            readme: enhanced?.readme,
+            readme: readmeHtml,
             repositoryUrl: repositoryUrl ? repositoryUrl : undefined,
             updatedAt: new Date(),
         },
