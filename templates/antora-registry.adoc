@@ -8,12 +8,13 @@ screenshots:
     caption: "Mobile Responsive Layout"
 ---
 
-# Overview
+= Overview
 
-Add a detailed description of your extension here. You can use **Markdown** to format your content. 
+Add a detailed description of your extension here. You can use *AsciiDoc* to format your content. 
 This content will be displayed in the "Insights" panel of the Antora Extensions Registry.
 
-## Key Features
-- Feature 1
-- Feature 2
-- Feature 3
+== Key Features
+
+* Feature 1
+* Feature 2
+* Feature 3
